@@ -37,7 +37,7 @@ export default function StarRating({
     fontSize: `${size / 1.5}px`,
   };
   function handleRating(rating) {
-    setRating(rating);
+    setRating(rating)
     onSetRating(rating);
   }
   return (

@@ -1,13 +1,13 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 
 const containerStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "16px",
+  display: 'flex',
+  alignItems: 'center',
+  gap: '16px',
 };
 const starContainerStyle = {
-  display: "flex",
+  display: 'flex',
 };
 StarRating.propTypes = {
   maxRating: PropTypes.number,
@@ -21,18 +21,18 @@ StarRating.propTypes = {
 
 export default function StarRating({
   maxRating = 5,
-  color = "#fcc419",
+  color = '#fcc419',
   size = 48,
-  className = "",
-  message = "",
+  className = '',
+  message = '',
   defaultRating = 0,
   onSetRating,
 }) {
   const [tempRating, setTempRating] = useState(0);
   const [rating, setRating] = useState(defaultRating);
   const textStyle = {
-    lineHeight: "1",
-    margin: "0",
+    lineHeight: '1',
+    margin: '0',
     color,
     fontSize: `${size / 1.5}px`,
   };
@@ -58,7 +58,7 @@ export default function StarRating({
       <p style={textStyle}>
         {message.length === maxRating
           ? message[tempRating ? tempRating - 1 : rating - 1]
-          : tempRating || rating || ""}
+          : tempRating || rating || ''}
       </p>
     </div>
   );
@@ -66,8 +66,8 @@ export default function StarRating({
 
 function Star({ onRate, full, onMouseIn, onMouseOut, color, size }) {
   const starStyle = {
-    display: "block",
-    cursor: "pointer",
+    display: 'block',
+    cursor: 'pointer',
     width: `${size}px`,
     hieght: `${size}px`,
   };

@@ -1,8 +1,6 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-
-
-export function useLocalStrageState(initialState,key){
+export function useLocalStrageState(initialState, key) {
   const [value, setValue] = useState(getLocalData());
   function getLocalData() {
     const storeValue = localStorage.getItem(key);
@@ -12,7 +10,7 @@ export function useLocalStrageState(initialState,key){
     function () {
       localStorage.setItem(key, JSON.stringify(value));
     },
-    [value,key]
+    [value, key]
   );
-  return [value,setValue]
+  return [value, setValue];
 }

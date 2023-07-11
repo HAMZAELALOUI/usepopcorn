@@ -1,22 +1,20 @@
+import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import StarRating from './StarRating';
+import { useMovies } from './useMovies';
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 // const KEY="f84fc31d";
 const KEY = 'd658538d';
-const tempQuery = 'Interstellar';
 
 export default function App() {
   const [query, setQuery] = useState('');
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
-  // const [watched, setWatched] = useState([]);
-  const [watched, setWatched] = useState(getLocalData());
+  const [watched, setWatched] = useState(getLocaleData());
+  const { movies, isLoading, error } = useMovies(query);
 
-  function getLocalData() {
+  function getLocaleData() {
     const storeValue = localStorage.getItem('watched');
     return JSON.parse(storeValue);
   }
@@ -42,48 +40,6 @@ export default function App() {
     },
     [watched]
   );
-
-  useEffect(
-    function () {
-      const controller = new AbortController();
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError('');
-
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-            { signal: controller.signal }
-          );
-          if (!res.ok) throw new Error('Please check your network ...');
-
-          const data = await res.json();
-          if (data.Response === 'False') throw new Error('Movie not found');
-          setMovies(data.Search);
-          setError('');
-        } catch (err) {
-          console.error(err.message);
-          if (err.name !== 'AbortError') {
-            setError(err.message);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      if (query.length < 0) {
-        setIsLoading([]);
-        setError('');
-        return;
-      }
-      handleCloseMovie();
-      fetchMovies();
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
-
   return (
     <>
       <NavBar>
@@ -123,6 +79,7 @@ export default function App() {
     </>
   );
 }
+/* eslint-disable react/prop-types */
 function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -144,6 +101,13 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const WatchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedId
   )?.userRating;
+  const countRef = useRef(0);
+  useEffect(
+    function () {
+      if (userRating) countRef.current++;
+    },
+    [userRating]
+  );
 
   function handleAdd() {
     const newWatchedMovie = {
@@ -154,10 +118,12 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(' ').at(0)),
       userRating,
+      countRatingDecision: countRef.current,
     };
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
+
   useEffect(
     function () {
       async function getMovieDetails() {
@@ -279,18 +245,21 @@ function Logo() {
   );
 }
 function Search({ query, setQuery }) {
-  const inputEl=useRef(null)
-  useEffect(function(){
-    function callback(e){
-      if(document.activeElement=== inputEl.current) return;
-      if(e.code==='Enter'){
-        inputEl.current.focus()
-        setQuery("")
+  const inputEl = useRef(null);
+  useEffect(
+    function () {
+      function callback(e) {
+        if (document.activeElement === inputEl.current) return;
+        if (e.code === 'Enter') {
+          inputEl.current.focus();
+          setQuery('');
+        }
       }
-    }
-    document.addEventListener('keydown',callback)
-    return ()=>document.addEventListener('keydown',callback)
-  },[])
+      document.addEventListener('keydown', callback);
+      return () => document.addEventListener('keydown', callback);
+    },
+    [setQuery]
+  );
   return (
     <input
       className="search"
